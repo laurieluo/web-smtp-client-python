@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata|Roboto:300,400,500|Work+Sans:400,700">
+  <link rel="stylesheet" href="static/style.css">
+  <title>Mail Deliver</title>
+</head>
+<body>
+  <nav class="navbar navbar-default navbar-static-top">
+    <div class="container noselect">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="index.html">
+          <img style="max-width: 60px; margin-top: -20px;" class="logo" src="images/logo.png"/>
+        </a>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar-collapse-section">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="newmail.html">Compose New Email</a></li>
+          <li><a href="https://google.com" target="_blank">Code</a></li>
+          <li><a href="https://google.com">Feedback</a></li>
+        </ul>
+      </div>      
+    </div>
+  </nav>
+  
+<header>
+  <main id="content" class="container">
+  <h1>撰写新邮件</h1>
+  </br>
+  <div class="formcontainer">
+    <form>
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email"><br>
+      <div class="email-list"></div>
+      <label for="subject">Subject:</label><br>
+      <input type="text" id="subject" name="subject" required><br>
+      <label for="message">Message:</label><br>
+      <textarea id="message" name="message" required></textarea><br>
+      <input type="submit" value="Send Email">
+    </form>
+    <div class="formseparator"></div>
+    <div class="formsidebar">
+      <h3>How to use?</h3>
+    </div>
+  </div>
+</header>
+
+<script>
+  const form = document.querySelector('form');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); // 阻止默认提交行为
+    const emailInputs = document.querySelectorAll('.email-list .email-tag');
+    const emailList = Array.from(emailInputs).map(input => input.textContent.replace(/\u00D7/g, ''));
+    const subject = form.elements.subject.value;
+    const message = form.elements.message.value;
+
+    // 判断 email 是否为空
+    if (emailList.length === 0) {
+      alert('Please enter at least one email address!');
+      return;
+    }
+    
+    // 不为空发送 POST 请求
+    const response = await fetch('/send_email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailList, subject, message })
+    });
+
+    // 判断服务器回应
+    if (response.ok) {
+      alert('Email sent!');
+      form.reset();
+      document.querySelector('.email-list').innerHTML = '';
+    } else {
+      alert('Failed to send email!');
+    }
+  });
+
+  // 正则表达式判断邮件格式是否正确
+  function validateEmail(email) {
+    const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    return regex.test(email);
+  }
+  const input = document.getElementById('email');
+  const emailList = document.querySelector('.email-list');
+
+  // 实现优雅添加多个邮件地址
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // 阻止默认提交行为
+      const email = input.value.trim();
+      if (validateEmail(email)) {
+        const emailTag = document.createElement('div');
+        emailTag.classList.add('email-tag');
+        emailTag.textContent = email;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.addEventListener('click', () => {
+          emailTag.remove();
+        });
+
+        emailTag.appendChild(deleteBtn);
+        emailList.appendChild(emailTag);
+        input.value = '';
+      } else {
+        alert('Invalid email format')
+      }
+    }
+  });
+</script>
+</body>
+</html>
