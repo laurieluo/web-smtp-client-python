@@ -6,7 +6,7 @@ init(autoreset=True)
 def show_http_info(message, connectionSocket, isserver=True):
 
     if isserver:
-        first_line = message[0].decode()
+        first_line = message[0]
         header_dict = message[1]
         # Message type is server response
         print(Fore.GREEN + '[Server]', Fore.LIGHTBLUE_EX + '['+str(datetime.now())+']', 
@@ -15,7 +15,7 @@ def show_http_info(message, connectionSocket, isserver=True):
         print('\t Status Line:')
         print(Fore.YELLOW + '\t HTTP version:', Fore.MAGENTA + first_line.split()[0])
         print(Fore.YELLOW + '\t Status Code:', Fore.MAGENTA + first_line.split()[1])
-        print(Fore.YELLOW + '\t Phrase:', Fore.MAGENTA + first_line.split()[2])
+        print(Fore.YELLOW + '\t Phrase:', Fore.MAGENTA + ''.join(first_line.split()[2:]))
         # Print header line
         print('\t Header Line:')
         print(Fore.YELLOW + '\t Server:', Fore.MAGENTA + header_dict['Server'])

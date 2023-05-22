@@ -9,11 +9,6 @@ import dns.resolver
 import threading
 init(autoreset=True)
 
-
-username='1395756132@qq.com'
-password='wmlqdgkokjuyihgi'
-email = {'email': ['u2q872yewsdzxcah@163.com','wuwangminglang@qq.com'], 'subject': 'fse', 'message': 'fsefsef'}
-
 #创建字典，存储不同邮件服务器的sslsmtp端口和地址
 
 serverbase={'qq.com':'smtp.qq.com','outlook.com':'smtp.live.com','gmail.com':'smtp.gmail.com',
