@@ -822,7 +822,7 @@ form, .formsidebar {
   margin: 0 auto;
 }
 
-#email, #subject, #message {
+#username, #password, #email, #subject, #message {
   width: 100%;
 }
 

@@ -36,6 +36,11 @@
   </br>
   <div class="formcontainer">
     <form>
+      <label for="username">Username:</label><br>
+      <input type="email" id="username" name="username" required><br>
+      <label for="password">Password/Authorization code:</label><br>
+      <input type="text" id="password" name="password" required><br>
+      <br><br>
       <label for="email">Email:</label><br>
       <input type="email" id="email" name="email"><br>
       <div class="email-list"></div>
@@ -43,6 +48,8 @@
       <input type="text" id="subject" name="subject" required><br>
       <label for="message">Message:</label><br>
       <textarea id="message" name="message" required></textarea><br>
+      <input type="checkbox" id="ssl" name="ssl">
+      <label for="ssl">Use SSL</label><br>
       <input type="submit" value="Send Email">
     </form>
     <div class="formseparator"></div>
@@ -58,9 +65,12 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); // 阻止默认提交行为
     const emailInputs = document.querySelectorAll('.email-list .email-tag');
-    const emailList = Array.from(emailInputs).map(input => input.textContent.replace(/\u00D7/g, ''));
+    const emailList = Array.from(emailInputs).map(input => input.textContent);
+    const username = form.elements.username.value;
+    const password = form.elements.password.value;
     const subject = form.elements.subject.value;
     const message = form.elements.message.value;
+    const ssl = form.elements.ssl.checked;
 
     // 判断 email 是否为空
     if (emailList.length === 0) {
@@ -68,20 +78,29 @@
       return;
     }
     
-    // 不为空发送 POST 请求
-    const response = await fetch('/send_email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailList, subject, message })
-    });
-
-    // 判断服务器回应
-    if (response.ok) {
-      alert('Email sent!');
-      form.reset();
-      document.querySelector('.email-list').innerHTML = '';
+    const maxSizeInBytes = 5 * 1024; // 5KB 
+    const messageBlob = new Blob([message]);
+    const messageSizeInBytes = messageBlob.size;
+    
+    if (messageSizeInBytes >= maxSizeInBytes) {
+      alert("Message size exceeds the limit of 5KB.");
     } else {
-      alert('Failed to send email!');
+      // 不为空发送 POST 请求
+      const response = await fetch('/send_email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, email: emailList, subject, message, ssl })
+      });
+
+      // 判断服务器回应
+      if (response.ok) {
+        const responseData = await response.text();
+        alert(responseData); // 使用 alert() 弹出信息
+        form.reset();
+        document.querySelector('.email-list').innerHTML = '';
+      } else {
+        alert('Failed to send email! \n Wrong Username or Password!');
+      }
     }
   });
 
