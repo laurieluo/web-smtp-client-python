@@ -173,9 +173,14 @@ def check(domain, username, addressToVerify):
     print(Fore.MAGENTA + '[SMTP Server]', Fore.LIGHTBLUE_EX + '['+str(datetime.now())+']', Fore.YELLOW + 'Checking the email is valid or not...')
     username = 'corn@bt.com'
     code = 0
-    records = dns.resolver.resolve(domain, 'MX')
-    mxRecord = records[0].exchange
-    mxRecord = str(mxRecord)
+    try:
+        records = dns.resolver.resolve(domain, 'MX')
+        mxRecord = records[0].exchange
+        mxRecord = str(mxRecord)
+    except:
+        print(Fore.MAGENTA + '[SMTP Server]', Fore.LIGHTBLUE_EX + '['+str(datetime.now())+']', Fore.CYAN + 'Email address is unknown, try to send!')
+        return True
+
 
     def wait_with_timeout():
         clientSocket = socket(AF_INET, SOCK_STREAM)
